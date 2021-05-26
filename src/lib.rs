@@ -172,23 +172,33 @@ impl Subject {
     pub fn icon(&self) -> &str {
         match self {
             Subject::Fixup(_) => "\u{f0e3} ",
-            Subject::ConventionalCommit { category, .. } => match category {
-                Category::Archive => "\u{f53b} ",
-                Category::Build => "🔨",
-                Category::Change | Category::Improvement => "\u{e370} ",
-                Category::Ci => "\u{f085} ",
-                Category::Deps => "\u{f487} ",
-                Category::Docs => "✎ ",
-                Category::Feat => "➕",
-                Category::Fix => "\u{f188} ",
-                Category::I18n => "\u{fac9}",
-                Category::Other => "⁇ ",
-                Category::Perf => "\u{f9c4}",
-                Category::Refactor => "↺ ",
-                Category::Repo => "",
-                Category::Style => "♥ ",
-                Category::Test => "\u{f45e} ",
-            },
+            Subject::ConventionalCommit {
+                breaking_change,
+                category,
+                ..
+            } => {
+                if *breaking_change {
+                    "⚠ "
+                } else {
+                    match category {
+                        Category::Archive => "\u{f53b} ",
+                        Category::Build => "🔨",
+                        Category::Change | Category::Improvement => "\u{e370} ",
+                        Category::Ci => "\u{f085} ",
+                        Category::Deps => "\u{f487} ",
+                        Category::Docs => "✎ ",
+                        Category::Feat => "➕",
+                        Category::Fix => "\u{f188} ",
+                        Category::I18n => "\u{fac9}",
+                        Category::Other => "⁇ ",
+                        Category::Perf => "\u{f9c4}",
+                        Category::Refactor => "↺ ",
+                        Category::Repo => "",
+                        Category::Style => "♥ ",
+                        Category::Test => "\u{f45e} ",
+                    }
+                }
+            }
             Subject::SubtreeCommit { operation, .. } => match operation {
                 SubtreeOperation::Import { .. } => "⮈ ",
                 SubtreeOperation::Split { .. } => "\u{f403} ",
@@ -338,6 +348,7 @@ mod tests {
                 description,
             },
         );
+        assert_eq!(result.icon(), "⚠ ");
         let result = Subject::from("change: Replace strncpy with memcpy");
         let description = "Replace strncpy with memcpy".to_string();
         assert_eq!(
@@ -350,6 +361,7 @@ mod tests {
             },
         );
         assert_eq!(result.description(), description);
+        assert_ne!(result.icon(), "⚠ ");
     }
 
     #[test]
@@ -366,6 +378,7 @@ mod tests {
             },
         );
         assert_eq!(result.description(), description);
+        assert_eq!(result.icon(), "⚠ ");
     }
 
     #[test]
@@ -424,6 +437,7 @@ mod tests {
                 description,
             },
         );
+        assert_eq!(result.icon(), "⚠ ");
     }
 
     #[test]
