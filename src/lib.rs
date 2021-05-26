@@ -209,7 +209,9 @@ impl Subject {
             .get(2)
             .map_or_else(|| "".to_string(), |_| caps[2].to_string());
         let mut rest_text = caps[3].to_string();
-        let breaking_change = cat_text.ends_with('!') || scope_text.ends_with('!');
+        let breaking_change = cat_text.ends_with('!')
+            || scope_text.ends_with('!')
+            || cat_text.to_lowercase().as_str() == "breaking change";
         if cat_text.ends_with('!') {
             cat_text.truncate(cat_text.len() - 1);
         }
@@ -230,7 +232,7 @@ impl Subject {
         let category = match cat_text.to_lowercase().as_str() {
             "archive" => Category::Archive,
             "build" => Category::Build,
-            "change" => Category::Change,
+            "breaking change" | "change" => Category::Change,
             "ci" => Category::Ci,
             "deps" => Category::Deps,
             "docs" => Category::Docs,
@@ -342,6 +344,22 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
+                category: Category::Change,
+                scope: None,
+                description: description.clone(),
+            },
+        );
+        assert_eq!(result.description(), description);
+    }
+
+    #[test]
+    fn breaking_change() {
+        let result = Subject::from("breaking change: Commits are now namedtupples");
+        let description = "Commits are now namedtupples".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: true,
                 category: Category::Change,
                 scope: None,
                 description: description.clone(),
