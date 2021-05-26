@@ -261,6 +261,11 @@ impl Subject {
         if category == Category::Other {
             rest_text = caps[0].to_string()
         }
+        if breaking_change {
+            let mut tmp = "! ".to_string();
+            tmp.push_str(&rest_text);
+            rest_text = tmp;
+        }
 
         Subject::ConventionalCommit {
             breaking_change,
@@ -338,7 +343,7 @@ mod tests {
     #[test]
     fn change() {
         let result = Subject::from("change!: Replace strncpy with memcpy");
-        let description = "Replace strncpy with memcpy".to_string();
+        let description = "! Replace strncpy with memcpy".to_string();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -367,7 +372,7 @@ mod tests {
     #[test]
     fn breaking_change() {
         let result = Subject::from("breaking change: Commits are now namedtupples");
-        let description = "Commits are now namedtupples".to_string();
+        let description = "! Commits are now namedtupples".to_string();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -427,7 +432,7 @@ mod tests {
     #[test]
     fn scope_breaking_change() {
         let result = Subject::from("fix(search)!: This breaks the api");
-        let description = "This breaks the api".to_string();
+        let description = "! This breaks the api".to_string();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
