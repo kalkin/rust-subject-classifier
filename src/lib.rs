@@ -257,7 +257,7 @@ impl Subject {
             "refactor" => Category::Refactor,
             "repo" => Category::Repo,
             "style" => Category::Style,
-            "test" => Category::Test,
+            "test" | "tests" => Category::Test,
             _ => Category::Other,
         };
 
