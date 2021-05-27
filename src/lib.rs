@@ -4,7 +4,7 @@ use regex::{Captures, Regex, RegexBuilder};
 
 lazy_static! {
     pub static ref CONVENTIONAL_COMMIT_REGEX: Regex =
-        RegexBuilder::new(r"^(\w+!?|BREAKING CHANGE!?)(\(.+\)!?)?:\s*(.+)")
+        RegexBuilder::new(r"^(\w+!?|SECURITY FIX!?|BREAKING CHANGE!?)(\(.+\)!?)?:\s*(.+)")
             .case_insensitive(true)
             .build()
             .expect("Valid RegEx");
@@ -52,6 +52,7 @@ pub enum Category {
     Perf,
     Refactor,
     Repo,
+    Security,
     Style,
     Test,
 }
@@ -194,6 +195,7 @@ impl Subject {
                         Category::Perf => "\u{f9c4}",
                         Category::Refactor => "↺ ",
                         Category::Repo => "",
+                        Category::Security => "",
                         Category::Style => "♥ ",
                         Category::Test => "\u{f45e} ",
                     }
@@ -248,6 +250,7 @@ impl Subject {
             "docs" => Category::Docs,
             "add" | "feat" => Category::Feat,
             "bugfix" | "fix" | "hotfix" => Category::Fix,
+            "security" | "security fix" => Category::Security,
             "i18n" => Category::I18n,
             "improvement" => Category::Improvement,
             "perf" => Category::Perf,
@@ -555,6 +558,35 @@ mod tests {
             Subject::PullRequest {
                 id: "126".to_string(),
                 description: text.to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn security() {
+        let text = "security: Fix CSV-FOO-1234";
+        let result = Subject::from(text);
+        let description = "Fix CSV-FOO-1234".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Category::Security,
+                scope: None,
+                description
+            }
+        );
+
+        let text = "security fix: Fix CSV-FOO-1234";
+        let result = Subject::from(text);
+        let description = "Fix CSV-FOO-1234".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Category::Security,
+                scope: None,
+                description
             }
         );
     }
