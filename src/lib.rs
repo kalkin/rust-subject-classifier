@@ -194,8 +194,8 @@ impl Subject {
                         Category::Other => "⁇ ",
                         Category::Perf => "\u{f9c4}",
                         Category::Refactor => "↺ ",
-                        Category::Repo => "",
-                        Category::Security => "",
+                        Category::Repo => " ",
+                        Category::Security => " ",
                         Category::Style => "♥ ",
                         Category::Test => "\u{f45e} ",
                     }
