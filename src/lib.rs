@@ -44,6 +44,7 @@ pub enum Category {
     Ci,
     Deps,
     Docs,
+    Deprecate,
     Feat,
     Fix,
     I18n,
@@ -156,6 +157,13 @@ impl From<&str> for Subject {
                 scope: None,
                 description: subject.to_string(),
             }
+        } else if subject.to_lowercase().starts_with("deprecate ") {
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Category::Deprecate,
+                scope: None,
+                description: subject.to_string(),
+            }
         } else if subject.to_lowercase().starts_with("remove ") {
             Subject::Remove(subject.to_string())
         } else if subject.to_lowercase().starts_with("rename ") {
@@ -186,6 +194,7 @@ impl Subject {
                         Category::Build => "🔨",
                         Category::Change | Category::Improvement => "\u{e370} ",
                         Category::Ci => "\u{f085} ",
+                        Category::Deprecate => "\u{f48e} ",
                         Category::Deps => "\u{f487} ",
                         Category::Docs => "✎ ",
                         Category::Feat => "➕",
@@ -246,6 +255,7 @@ impl Subject {
             "build" => Category::Build,
             "breaking change" | "change" => Category::Change,
             "ci" => Category::Ci,
+            "deprecate" => Category::Deprecate,
             "deps" => Category::Deps,
             "docs" => Category::Docs,
             "add" | "feat" => Category::Feat,
@@ -602,6 +612,35 @@ mod tests {
                 category: Category::Other,
                 scope: None,
                 description: "Makefile: replace '-' in plugins_var".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn deprecate() {
+        let text = "deprecate: Mark Foo() as deprecated";
+        let result = Subject::from(text);
+        let description = "Mark Foo() as deprecated".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Category::Deprecate,
+                scope: None,
+                description
+            }
+        );
+
+        let text = "Deprecate Foo() use Bar() instead";
+        let result = Subject::from(text);
+        let description = "Deprecate Foo() use Bar() instead".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Category::Deprecate,
+                scope: None,
+                description
             }
         );
     }
