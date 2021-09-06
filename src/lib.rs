@@ -272,7 +272,7 @@ impl Subject {
         };
 
         if category == Category::Other {
-            rest_text = caps[0].to_string()
+            rest_text = caps[0].to_string();
         }
         if breaking_change {
             let mut tmp = "! ".to_string();
