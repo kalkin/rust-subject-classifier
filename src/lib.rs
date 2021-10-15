@@ -199,7 +199,7 @@ impl Subject {
                         Category::Deps => "\u{f487} ",
                         Category::Docs => "✎ ",
                         Category::Feat => "➕",
-                        Category::Issue => "",
+                        Category::Issue => " ",
                         Category::Fix => "\u{f188} ",
                         Category::I18n => "\u{fac9}",
                         Category::Other => "⁇ ",
