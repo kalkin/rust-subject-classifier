@@ -41,6 +41,7 @@ pub enum Category {
     Archive,
     Build,
     Change,
+    Chore,
     Ci,
     Deps,
     Docs,
@@ -194,6 +195,7 @@ impl Subject {
                         Category::Archive => "\u{f53b} ",
                         Category::Build => "🔨",
                         Category::Change | Category::Improvement => "\u{e370} ",
+                        Category::Chore => "\u{1F6A7} ", // unicode construction sign
                         Category::Ci => "\u{f085} ",
                         Category::Deprecate => "\u{f48e} ",
                         Category::Deps => "\u{f487} ",
@@ -256,6 +258,7 @@ impl Subject {
             "archive" => Category::Archive,
             "build" => Category::Build,
             "breaking change" | "change" => Category::Change,
+            "chore" => Category::Chore,
             "ci" => Category::Ci,
             "deprecate" => Category::Deprecate,
             "deps" => Category::Deps,
