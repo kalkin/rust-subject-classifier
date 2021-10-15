@@ -200,7 +200,7 @@ impl Subject {
                         Category::Deprecate => "\u{f48e} ",
                         Category::Deps => "\u{f487} ",
                         Category::Docs => "✎ ",
-                        Category::Feat => "➕",
+                        Category::Feat => "\u{1f381} ", // unicode wrapped present
                         Category::Issue => " ",
                         Category::Fix => "\u{f188} ",
                         Category::I18n => "\u{fac9}",
