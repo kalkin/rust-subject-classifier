@@ -43,6 +43,7 @@ pub enum Category {
     Change,
     Chore,
     Ci,
+    Dev,
     Deps,
     Docs,
     Deprecate,
@@ -198,6 +199,7 @@ impl Subject {
                         Category::Chore => "\u{1F6A7} ", // unicode construction sign
                         Category::Ci => "\u{f085} ",
                         Category::Deprecate => "\u{f48e} ",
+                        Category::Dev => "\u{1f6a9}",
                         Category::Deps => "\u{f487} ",
                         Category::Docs => "✎ ",
                         Category::Feat => "\u{1f381}", // unicode wrapped present
@@ -262,6 +264,7 @@ impl Subject {
             "ci" => Category::Ci,
             "deprecate" => Category::Deprecate,
             "deps" => Category::Deps,
+            "dev" => Category::Dev,
             "docs" => Category::Docs,
             "add" | "feat" => Category::Feat,
             "bugfix" | "fix" | "hotfix" => Category::Fix,
