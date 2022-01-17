@@ -367,7 +367,7 @@ impl Subject {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Type, Subject, SubtreeOperation};
+    use crate::{Subject, SubtreeOperation, Type};
 
     #[test]
     fn archive() {
