@@ -54,7 +54,7 @@ pub enum SubtreeOperation {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub enum Category {
+pub enum Type {
     Archive,
     Build,
     Change,
@@ -81,7 +81,7 @@ pub enum Category {
 pub enum Subject {
     ConventionalCommit {
         breaking_change: bool,
-        category: Category,
+        category: Type,
         scope: Option<String>,
         description: String,
     },
@@ -166,21 +166,21 @@ impl From<&str> for Subject {
         } else if ADD_REGEX.is_match(subject) {
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Feat,
+                category: Type::Feat,
                 scope: None,
                 description: subject.to_string(),
             }
         } else if FIX_REGEX.is_match(subject) {
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Fix,
+                category: Type::Fix,
                 scope: None,
                 description: subject.to_string(),
             }
         } else if subject.to_lowercase().starts_with("deprecate ") {
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Deprecate,
+                category: Type::Deprecate,
                 scope: None,
                 description: subject.to_string(),
             }
@@ -210,26 +210,26 @@ impl Subject {
                     "⚠ "
                 } else {
                     match category {
-                        Category::Archive => "\u{f53b} ",
-                        Category::Build => "🔨",
-                        Category::Change | Category::Improvement => "\u{e370} ",
-                        Category::Chore => "\u{1F6A7} ", // unicode construction sign
-                        Category::Ci => "\u{f085} ",
-                        Category::Deprecate => "\u{f48e} ",
-                        Category::Dev => "\u{1f6a9}",
-                        Category::Deps => "\u{f487} ",
-                        Category::Docs => "✎ ",
-                        Category::Feat => "\u{1f381}", // unicode wrapped present
-                        Category::Issue => " ",
-                        Category::Fix => "\u{f188} ",
-                        Category::I18n => "\u{fac9}",
-                        Category::Other => "⁇ ",
-                        Category::Perf => "\u{f9c4}",
-                        Category::Refactor => "↺ ",
-                        Category::Repo => " ",
-                        Category::Security => " ",
-                        Category::Style => "♥ ",
-                        Category::Test => "\u{f45e} ",
+                        Type::Archive => "\u{f53b} ",
+                        Type::Build => "🔨",
+                        Type::Change | Type::Improvement => "\u{e370} ",
+                        Type::Chore => "\u{1F6A7} ", // unicode construction sign
+                        Type::Ci => "\u{f085} ",
+                        Type::Deprecate => "\u{f48e} ",
+                        Type::Dev => "\u{1f6a9}",
+                        Type::Deps => "\u{f487} ",
+                        Type::Docs => "✎ ",
+                        Type::Feat => "\u{1f381}", // unicode wrapped present
+                        Type::Issue => " ",
+                        Type::Fix => "\u{f188} ",
+                        Type::I18n => "\u{fac9}",
+                        Type::Other => "⁇ ",
+                        Type::Perf => "\u{f9c4}",
+                        Type::Refactor => "↺ ",
+                        Type::Repo => " ",
+                        Type::Security => " ",
+                        Type::Style => "♥ ",
+                        Type::Test => "\u{f45e} ",
                     }
                 }
             }
@@ -274,30 +274,30 @@ impl Subject {
         };
 
         let category = match cat_text.to_lowercase().as_str() {
-            "archive" => Category::Archive,
-            "build" => Category::Build,
-            "breaking change" | "change" => Category::Change,
-            "chore" => Category::Chore,
-            "ci" => Category::Ci,
-            "deprecate" => Category::Deprecate,
-            "deps" => Category::Deps,
-            "dev" => Category::Dev,
-            "docs" => Category::Docs,
-            "add" | "feat" => Category::Feat,
-            "bugfix" | "fix" | "hotfix" => Category::Fix,
-            "security" | "security fix" => Category::Security,
-            "i18n" => Category::I18n,
-            "gi" | "issue" => Category::Issue,
-            "improvement" => Category::Improvement,
-            "perf" => Category::Perf,
-            "refactor" => Category::Refactor,
-            "repo" => Category::Repo,
-            "style" => Category::Style,
-            "test" | "tests" => Category::Test,
-            _ => Category::Other,
+            "archive" => Type::Archive,
+            "build" => Type::Build,
+            "breaking change" | "change" => Type::Change,
+            "chore" => Type::Chore,
+            "ci" => Type::Ci,
+            "deprecate" => Type::Deprecate,
+            "deps" => Type::Deps,
+            "dev" => Type::Dev,
+            "docs" => Type::Docs,
+            "add" | "feat" => Type::Feat,
+            "bugfix" | "fix" | "hotfix" => Type::Fix,
+            "security" | "security fix" => Type::Security,
+            "i18n" => Type::I18n,
+            "gi" | "issue" => Type::Issue,
+            "improvement" => Type::Improvement,
+            "perf" => Type::Perf,
+            "refactor" => Type::Refactor,
+            "repo" => Type::Repo,
+            "style" => Type::Style,
+            "test" | "tests" => Type::Test,
+            _ => Type::Other,
         };
 
-        if category == Category::Other {
+        if category == Type::Other {
             rest_text = caps[0].to_string();
         }
         if breaking_change {
@@ -347,7 +347,7 @@ impl Subject {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Category, Subject, SubtreeOperation};
+    use crate::{Type, Subject, SubtreeOperation};
 
     #[test]
     fn archive() {
@@ -357,7 +357,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Archive,
+                category: Type::Archive,
                 scope: None,
                 description,
             },
@@ -372,7 +372,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Build,
+                category: Type::Build,
                 scope: Some("repo".to_string()),
                 description,
             },
@@ -387,7 +387,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: true,
-                category: Category::Change,
+                category: Type::Change,
                 scope: None,
                 description,
             },
@@ -399,7 +399,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Change,
+                category: Type::Change,
                 scope: None,
                 description: description.clone(),
             },
@@ -416,7 +416,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: true,
-                category: Category::Change,
+                category: Type::Change,
                 scope: None,
                 description: description.clone(),
             },
@@ -433,7 +433,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Ci,
+                category: Type::Ci,
                 scope: Some("srht".to_string()),
                 description,
             },
@@ -447,7 +447,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Deps,
+                category: Type::Deps,
                 scope: None,
                 description,
             },
@@ -461,7 +461,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Docs,
+                category: Type::Docs,
                 scope: Some("readme".to_string()),
                 description,
             },
@@ -476,7 +476,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: true,
-                category: Category::Fix,
+                category: Type::Fix,
                 scope: Some("search".to_string()),
                 description,
             },
@@ -607,7 +607,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Security,
+                category: Type::Security,
                 scope: None,
                 description
             }
@@ -620,7 +620,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Security,
+                category: Type::Security,
                 scope: None,
                 description
             }
@@ -635,7 +635,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Other,
+                category: Type::Other,
                 scope: None,
                 description: "Makefile: replace '-' in plugins_var".to_string()
             }
@@ -651,7 +651,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Deprecate,
+                category: Type::Deprecate,
                 scope: None,
                 description
             }
@@ -664,7 +664,7 @@ mod tests {
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
-                category: Category::Deprecate,
+                category: Type::Deprecate,
                 scope: None,
                 description
             }
