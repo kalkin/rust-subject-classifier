@@ -129,15 +129,15 @@ impl From<&str> for Subject {
     fn from(subject: &str) -> Self {
         #[allow(clippy::option_if_let_else)]
         if let Some(caps) = CONVENTIONAL_COMMIT_REGEX.captures(subject) {
-            Subject::parse_conventional_commit(&caps)
+            Self::parse_conventional_commit(&caps)
         } else if subject.starts_with("fixup!") {
-            Subject::Fixup(subject.to_string())
+            Self::Fixup(subject.to_string())
         } else if let Some(caps) = UPDATE_REGEX.captures(subject) {
             let operation = SubtreeOperation::Update {
                 subtree: caps[1].to_string(),
                 git_ref: caps[2].to_string(),
             };
-            Subject::SubtreeCommit {
+            Self::SubtreeCommit {
                 operation,
                 description: subject.to_string(),
             }
@@ -146,7 +146,7 @@ impl From<&str> for Subject {
                 subtree: caps[1].to_string(),
                 git_ref: caps[2].to_string(),
             };
-            Subject::SubtreeCommit {
+            Self::SubtreeCommit {
                 operation,
                 description: subject.to_string(),
             }
@@ -155,18 +155,18 @@ impl From<&str> for Subject {
                 subtree: caps[1].to_string(),
                 git_ref: caps[2].to_string(),
             };
-            Subject::SubtreeCommit {
+            Self::SubtreeCommit {
                 operation,
                 description: subject.to_string(),
             }
         } else if let Some(caps) = RELEASE_REGEX1.captures(subject) {
-            Subject::Release {
+            Self::Release {
                 version: caps[2].to_string(),
                 scope: Some(caps[1].to_string()),
                 description: subject.to_string(),
             }
         } else if let Some(caps) = RELEASE_REGEX2.captures(subject) {
-            Subject::Release {
+            Self::Release {
                 version: caps[1].to_string(),
                 scope: None,
                 description: subject.to_string(),
@@ -179,41 +179,41 @@ impl From<&str> for Subject {
             } else {
                 // If we are here then something went completly wrong.
                 // to minimize the damage just return a `Subject::Simple`
-                return Subject::Simple(subject.to_string());
+                return Self::Simple(subject.to_string());
             };
-            Subject::PullRequest {
+            Self::PullRequest {
                 id,
                 description: subject.to_string(),
             }
         } else if ADD_REGEX.is_match(subject) {
-            Subject::ConventionalCommit {
+            Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Feat,
                 scope: None,
                 description: subject.to_string(),
             }
         } else if FIX_REGEX.is_match(subject) {
-            Subject::ConventionalCommit {
+            Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Fix,
                 scope: None,
                 description: subject.to_string(),
             }
         } else if subject.to_lowercase().starts_with("deprecate ") {
-            Subject::ConventionalCommit {
+            Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Deprecate,
                 scope: None,
                 description: subject.to_string(),
             }
         } else if subject.to_lowercase().starts_with("remove ") {
-            Subject::Remove(subject.to_string())
+            Self::Remove(subject.to_string())
         } else if subject.to_lowercase().starts_with("rename ") {
-            Subject::Rename(subject.to_string())
+            Self::Rename(subject.to_string())
         } else if subject.to_lowercase().starts_with("revert ") {
-            Subject::Revert(subject.to_string())
+            Self::Revert(subject.to_string())
         } else {
-            Subject::Simple(subject.to_string())
+            Self::Simple(subject.to_string())
         }
     }
 }
@@ -268,7 +268,7 @@ impl Subject {
             Subject::PullRequest { .. } => " ",
         }
     }
-    fn parse_conventional_commit(caps: &Captures) -> Subject {
+    fn parse_conventional_commit(caps: &Captures) -> Self {
         // eprintln!("{:#?}", caps);
         let mut cat_text = caps[1].to_string();
         let mut scope_text = caps
@@ -328,7 +328,7 @@ impl Subject {
             rest_text = tmp;
         }
 
-        Subject::ConventionalCommit {
+        Self::ConventionalCommit {
             breaking_change,
             category,
             scope,
