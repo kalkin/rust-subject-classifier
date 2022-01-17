@@ -177,7 +177,9 @@ impl From<&str> for Subject {
             } else if let Some(n) = caps.get(2) {
                 n.as_str().to_string()
             } else {
-                panic!("Failed to identify pr id {:?}", caps);
+                // If we are here then something went completly wrong.
+                // to minimize the damage just return a `Subject::Simple`
+                return Subject::Simple(subject.to_string());
             };
             Subject::PullRequest {
                 id,
