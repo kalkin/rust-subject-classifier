@@ -21,11 +21,11 @@
 //! ```rust
 //! use subject_classifier::Subject;
 //!
-//! let subject = Subject::from("feat: Add a new feature XYZ");
-//! println!("Icon: {}, scope {}, msg: {}",
+//! let subject = subject_classifier::Subject::from("feat(Stuff): Add a new feature XYZ");
+//! println!("Icon: {}, scope {:?}, msg: {}",
 //!         subject.icon(),
 //!         subject.scope(),
-//!         subject.description);
+//!         subject.description());
 //! ```
 use lazy_static::lazy_static;
 use regex::{Captures, Regex, RegexBuilder};
@@ -92,7 +92,9 @@ pub enum Type {
 }
 /// Classified subject
 ///
-/// ```
+/// ```rust
+/// use subject_classifier::Subject;
+///
 /// let subject = Subject::from("feat: Some new feature");
 /// ```
 #[derive(Debug, Eq, PartialEq)]
