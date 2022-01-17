@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Bahtiar `kalkin-` Gadimov <bahtiar@gadimov.de>"]
 edition = "2018"
 license = "LGPL-3.0-or-later"
+description = "Library for classifying a commit by it's subject"
 
 [dependencies]
 lazy_static = "1.4"

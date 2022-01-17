@@ -15,7 +15,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-//! Library for classifying a commit by it's subject
+//! Library for classifying a commit by it's subject. Tries hard to recognize the subject type
+//! according to the commit message. Supports [Conventional Commits Standard v1.0.0](https://www.conventionalcommits.org/en/v1.0.0)
+//!
+//! ```rust
+//! use subject_classifier::Subject;
+//!
+//! let subject = Subject::from("feat: Add a new feature XYZ");
+//! println!("Icon: {}, scope {}, msg: {}",
+//!         subject.icon(),
+//!         subject.scope(),
+//!         subject.description);
+//! ```
 use lazy_static::lazy_static;
 use regex::{Captures, Regex, RegexBuilder};
 
@@ -46,6 +57,7 @@ lazy_static! {
         Regex::new(r"(?i)^(bug)?fix(ing|ed)?(\(.+\))?[/:\s]+").expect("Valid Regex");
 }
 
+/// Represents different subtree operations encoded in the commit message.
 #[derive(Debug, Eq, PartialEq)]
 pub enum SubtreeOperation {
     Import { subtree: String, git_ref: String },
@@ -53,6 +65,7 @@ pub enum SubtreeOperation {
     Update { subtree: String, git_ref: String },
 }
 
+/// The type of the commit
 #[derive(Debug, Eq, PartialEq)]
 pub enum Type {
     Archive,
@@ -77,6 +90,11 @@ pub enum Type {
     Style,
     Test,
 }
+/// Classified subject
+///
+/// ```
+/// let subject = Subject::from("feat: Some new feature");
+/// ```
 #[derive(Debug, Eq, PartialEq)]
 pub enum Subject {
     ConventionalCommit {
