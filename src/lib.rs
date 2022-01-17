@@ -31,7 +31,7 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex, RegexBuilder};
 
 lazy_static! {
-    pub static ref CONVENTIONAL_COMMIT_REGEX: Regex =
+    static ref CONVENTIONAL_COMMIT_REGEX: Regex =
         RegexBuilder::new(r"^(\w+!?|SECURITY FIX!?|BREAKING CHANGE!?)(\(.+\)!?)?:\s*(.+)")
             .case_insensitive(true)
             .build()
