@@ -52,6 +52,8 @@ lazy_static! {
     static ref PR_REGEX: Regex =
         Regex::new(r"^Merge (?:remote-tracking branch '.+/pr/(\d+)'|pull request #(\d+) from .+)$")
             .expect("Valid RegEx");
+    static ref PR_REGEX_BB: Regex =
+        Regex::new(r"^Merge pull request #(\d+) in .+ from .+$").expect("Valid RegEx");
     static ref ADD_REGEX: Regex = Regex::new(r"(?i)^add:?\s*").expect("Valid RegEx");
     static ref FIX_REGEX: Regex =
         Regex::new(r"(?i)^(bug)?fix(ing|ed)?(\(.+\))?[/:\s]+").expect("Valid Regex");
@@ -172,6 +174,20 @@ impl From<&str> for Subject {
                 description: subject.to_string(),
             }
         } else if let Some(caps) = PR_REGEX.captures(subject) {
+            let id = if let Some(n) = caps.get(1) {
+                n.as_str().to_string()
+            } else if let Some(n) = caps.get(2) {
+                n.as_str().to_string()
+            } else {
+                // If we are here then something went completly wrong.
+                // to minimize the damage just return a `Subject::Simple`
+                return Self::Simple(subject.to_string());
+            };
+            Self::PullRequest {
+                id,
+                description: subject.to_string(),
+            }
+        } else if let Some(caps) = PR_REGEX_BB.captures(subject) {
             let id = if let Some(n) = caps.get(1) {
                 n.as_str().to_string()
             } else if let Some(n) = caps.get(2) {
@@ -615,6 +631,19 @@ mod tests {
             result,
             Subject::PullRequest {
                 id: "126".to_string(),
+                description: text.to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn pr_bitbucket() {
+        let text = "Merge pull request #7771 in FOO/bar from feature/asdqwert to development";
+        let result = Subject::from(text);
+        assert_eq!(
+            result,
+            Subject::PullRequest {
+                id: "7771".to_string(),
                 description: text.to_string()
             }
         );
