@@ -319,7 +319,7 @@ impl Subject {
             "deps" => Type::Deps,
             "dev" => Type::Dev,
             "docs" => Type::Docs,
-            "add" | "feat" => Type::Feat,
+            "add" | "feat" | "feature" => Type::Feat,
             "bugfix" | "fix" | "hotfix" => Type::Fix,
             "security" | "security fix" => Type::Security,
             "i18n" => Type::I18n,
