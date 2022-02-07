@@ -323,7 +323,7 @@ impl Subject {
             "bugfix" | "fix" | "hotfix" => Type::Fix,
             "security" | "security fix" => Type::Security,
             "i18n" => Type::I18n,
-            "gi" | "issue" => Type::Issue,
+            "gi" | "issue" | "done" => Type::Issue,
             "improvement" => Type::Improvement,
             "perf" => Type::Perf,
             "refactor" => Type::Refactor,
