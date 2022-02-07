@@ -32,9 +32,7 @@ use regex::{Captures, Regex, RegexBuilder};
 
 lazy_static! {
     static ref CONVENTIONAL_COMMIT_REGEX: Regex =
-        RegexBuilder::new(r"^(\w+!?|SECURITY FIX!?|BREAKING CHANGE!?)(\(.+\)!?)?:\s*(.+)")
-            .case_insensitive(true)
-            .build()
+        Regex::new(r"(?i)^(SECURITY FIX!?|BREAKING CHANGE!?|\w+!?)(\(.+\)!?)?[/:\s]*(.+)")
             .expect("Valid RegEx");
     static ref UPDATE_REGEX: Regex = Regex::new(r#"^Update :?(.+) to (.+)"#).expect("Valid RegEx");
     static ref SPLIT_REGEX: Regex =
@@ -130,8 +128,32 @@ pub enum Subject {
 impl From<&str> for Subject {
     fn from(subject: &str) -> Self {
         #[allow(clippy::option_if_let_else)]
-        if let Some(caps) = CONVENTIONAL_COMMIT_REGEX.captures(subject) {
-            Self::parse_conventional_commit(&caps)
+        if let Some(caps) = RELEASE_REGEX1.captures(subject) {
+            Self::Release {
+                version: caps[2].to_string(),
+                scope: Some(caps[1].to_string()),
+                description: subject.to_string(),
+            }
+        } else if let Some(caps) = RELEASE_REGEX2.captures(subject) {
+            Self::Release {
+                version: caps[1].to_string(),
+                scope: None,
+                description: subject.to_string(),
+            }
+        } else if let Some(caps) = PR_REGEX.captures(subject) {
+            let id = if let Some(n) = caps.get(1) {
+                n.as_str().to_string()
+            } else if let Some(n) = caps.get(2) {
+                n.as_str().to_string()
+            } else {
+                // If we are here then something went completly wrong.
+                // to minimize the damage just return a `Subject::Simple`
+                return Self::Simple(subject.to_string());
+            };
+            Self::PullRequest {
+                id,
+                description: subject.to_string(),
+            }
         } else if subject.starts_with("fixup!") {
             Self::Fixup(subject.to_string())
         } else if let Some(caps) = UPDATE_REGEX.captures(subject) {
@@ -161,32 +183,12 @@ impl From<&str> for Subject {
                 operation,
                 description: subject.to_string(),
             }
-        } else if let Some(caps) = RELEASE_REGEX1.captures(subject) {
-            Self::Release {
-                version: caps[2].to_string(),
-                scope: Some(caps[1].to_string()),
-                description: subject.to_string(),
-            }
-        } else if let Some(caps) = RELEASE_REGEX2.captures(subject) {
-            Self::Release {
-                version: caps[1].to_string(),
-                scope: None,
-                description: subject.to_string(),
-            }
-        } else if let Some(caps) = PR_REGEX.captures(subject) {
-            let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_string()
-            } else if let Some(n) = caps.get(2) {
-                n.as_str().to_string()
-            } else {
-                // If we are here then something went completly wrong.
-                // to minimize the damage just return a `Subject::Simple`
-                return Self::Simple(subject.to_string());
-            };
-            Self::PullRequest {
-                id,
-                description: subject.to_string(),
-            }
+        } else if subject.to_lowercase().starts_with("remove ") {
+            Self::Remove(subject.to_string())
+        } else if subject.to_lowercase().starts_with("rename ") {
+            Self::Rename(subject.to_string())
+        } else if subject.to_lowercase().starts_with("revert ") {
+            Self::Revert(subject.to_string())
         } else if let Some(caps) = PR_REGEX_BB.captures(subject) {
             let id = if let Some(n) = caps.get(1) {
                 n.as_str().to_string()
@@ -222,12 +224,8 @@ impl From<&str> for Subject {
                 scope: None,
                 description: subject.to_string(),
             }
-        } else if subject.to_lowercase().starts_with("remove ") {
-            Self::Remove(subject.to_string())
-        } else if subject.to_lowercase().starts_with("rename ") {
-            Self::Rename(subject.to_string())
-        } else if subject.to_lowercase().starts_with("revert ") {
-            Self::Revert(subject.to_string())
+        } else if let Some(caps) = CONVENTIONAL_COMMIT_REGEX.captures(subject) {
+            Self::parse_conventional_commit(&caps)
         } else {
             Self::Simple(subject.to_string())
         }
@@ -432,6 +430,20 @@ mod tests {
         );
         assert_eq!(result.icon(), "⚠ ");
         let result = Subject::from("change: Replace strncpy with memcpy");
+        let description = "Replace strncpy with memcpy".to_string();
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Type::Change,
+                scope: None,
+                description: description.clone(),
+            },
+        );
+        assert_eq!(result.description(), description);
+        assert_ne!(result.icon(), "⚠ ");
+
+        let result = Subject::from("CHANGE Replace strncpy with memcpy");
         let description = "Replace strncpy with memcpy".to_string();
         assert_eq!(
             result,
