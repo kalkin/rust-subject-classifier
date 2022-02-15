@@ -382,6 +382,7 @@ impl Subject {
 }
 
 #[cfg(test)]
+#[cfg(not(tarpaulin_include))]
 mod tests {
     use crate::{Subject, SubtreeOperation, Type};
 
