@@ -126,6 +126,7 @@ pub enum Subject {
 }
 //
 impl From<&str> for Subject {
+    #[inline]
     fn from(subject: &str) -> Self {
         #[allow(clippy::option_if_let_else)]
         if let Some(caps) = RELEASE_REGEX1.captures(subject) {
@@ -234,6 +235,7 @@ impl From<&str> for Subject {
 
 impl Subject {
     #[must_use]
+    #[inline]
     pub fn icon(&self) -> &str {
         match self {
             Subject::Fixup(_) => "\u{f0e3} ",
@@ -351,6 +353,7 @@ impl Subject {
     }
 
     #[must_use]
+    #[inline]
     pub fn description(&self) -> &str {
         match self {
             Subject::ConventionalCommit { description, .. }
@@ -366,6 +369,7 @@ impl Subject {
     }
 
     #[must_use]
+    #[inline]
     pub fn scope(&self) -> Option<String> {
         match self {
             Subject::ConventionalCommit { scope, .. } | Subject::Release { scope, .. } => {
