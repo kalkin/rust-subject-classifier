@@ -133,30 +133,30 @@ impl From<&str> for Subject {
             Self::Release {
                 version: caps[2].to_string(),
                 scope: Some(caps[1].to_string()),
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if let Some(caps) = RELEASE_REGEX2.captures(subject) {
             Self::Release {
                 version: caps[1].to_string(),
                 scope: None,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if let Some(caps) = PR_REGEX.captures(subject) {
             let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_string()
+                n.as_str().to_owned()
             } else if let Some(n) = caps.get(2) {
-                n.as_str().to_string()
+                n.as_str().to_owned()
             } else {
                 // If we are here then something went completly wrong.
                 // to minimize the damage just return a `Subject::Simple`
-                return Self::Simple(subject.to_string());
+                return Self::Simple(subject.to_owned());
             };
             Self::PullRequest {
                 id,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if subject.starts_with("fixup!") {
-            Self::Fixup(subject.to_string())
+            Self::Fixup(subject.to_owned())
         } else if let Some(caps) = UPDATE_REGEX.captures(subject) {
             let operation = SubtreeOperation::Update {
                 subtree: caps[1].to_string(),
@@ -164,7 +164,7 @@ impl From<&str> for Subject {
             };
             Self::SubtreeCommit {
                 operation,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if let Some(caps) = IMPORT_REGEX.captures(subject) {
             let operation = SubtreeOperation::Import {
@@ -173,7 +173,7 @@ impl From<&str> for Subject {
             };
             Self::SubtreeCommit {
                 operation,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if let Some(caps) = SPLIT_REGEX.captures(subject) {
             let operation = SubtreeOperation::Split {
@@ -182,53 +182,53 @@ impl From<&str> for Subject {
             };
             Self::SubtreeCommit {
                 operation,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if subject.to_lowercase().starts_with("remove ") {
-            Self::Remove(subject.to_string())
+            Self::Remove(subject.to_owned())
         } else if subject.to_lowercase().starts_with("rename ") {
-            Self::Rename(subject.to_string())
+            Self::Rename(subject.to_owned())
         } else if subject.to_lowercase().starts_with("revert ") {
-            Self::Revert(subject.to_string())
+            Self::Revert(subject.to_owned())
         } else if let Some(caps) = PR_REGEX_BB.captures(subject) {
             let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_string()
+                n.as_str().to_owned()
             } else if let Some(n) = caps.get(2) {
-                n.as_str().to_string()
+                n.as_str().to_owned()
             } else {
                 // If we are here then something went completly wrong.
                 // to minimize the damage just return a `Subject::Simple`
-                return Self::Simple(subject.to_string());
+                return Self::Simple(subject.to_owned());
             };
             Self::PullRequest {
                 id,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if ADD_REGEX.is_match(subject) {
             Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Feat,
                 scope: None,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if FIX_REGEX.is_match(subject) {
             Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Fix,
                 scope: None,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if subject.to_lowercase().starts_with("deprecate ") {
             Self::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Deprecate,
                 scope: None,
-                description: subject.to_string(),
+                description: subject.to_owned(),
             }
         } else if let Some(caps) = CONVENTIONAL_COMMIT_REGEX.captures(subject) {
             Self::parse_conventional_commit(&caps)
         } else {
-            Self::Simple(subject.to_string())
+            Self::Simple(subject.to_owned())
         }
     }
 }
@@ -289,7 +289,7 @@ impl Subject {
         let mut cat_text = caps[1].to_string();
         let mut scope_text = caps
             .get(2)
-            .map_or_else(|| "".to_string(), |_| caps[2].to_string());
+            .map_or_else(|| "".to_owned(), |_| caps[2].to_string());
         let mut rest_text = caps[3].to_string();
         let breaking_change = cat_text.ends_with('!')
             || scope_text.ends_with('!')
@@ -339,7 +339,7 @@ impl Subject {
             rest_text = caps[0].to_string();
         }
         if breaking_change {
-            let mut tmp = "! ".to_string();
+            let mut tmp = "! ".to_owned();
             tmp.push_str(&rest_text);
             rest_text = tmp;
         }
