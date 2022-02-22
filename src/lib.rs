@@ -236,7 +236,7 @@ impl From<&str> for Subject {
 impl Subject {
     #[must_use]
     #[inline]
-    pub fn icon(&self) -> &str {
+    pub const fn icon(&self) -> &str {
         match self {
             Subject::Fixup(_) => "\u{f0e3} ",
             Subject::ConventionalCommit {
@@ -285,7 +285,6 @@ impl Subject {
         }
     }
     fn parse_conventional_commit(caps: &Captures<'_>) -> Self {
-        // eprintln!("{:#?}", caps);
         let mut cat_text = caps[1].to_string();
         let mut scope_text = caps
             .get(2)
