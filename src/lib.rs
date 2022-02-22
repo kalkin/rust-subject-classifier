@@ -282,7 +282,7 @@ impl Subject {
             Subject::PullRequest { .. } => " ",
         }
     }
-    fn parse_conventional_commit(caps: &Captures) -> Self {
+    fn parse_conventional_commit(caps: &Captures<'_>) -> Self {
         // eprintln!("{:#?}", caps);
         let mut cat_text = caps[1].to_string();
         let mut scope_text = caps
