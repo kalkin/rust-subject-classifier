@@ -6,6 +6,8 @@ edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Library for classifying a commit by it's subject"
 repository = "https://github.com/kalkin/rust-subject-classifier"
+keywords = ["changelog"]
+categories = ["data-structures", "text-processing"]
 
 [dependencies]
 lazy_static = "1.4"
