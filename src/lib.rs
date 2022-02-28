@@ -58,6 +58,7 @@ lazy_static! {
 }
 
 /// Represents different subtree operations encoded in the commit message.
+#[allow(missing_docs)]
 #[derive(Debug, Eq, PartialEq)]
 pub enum SubtreeOperation {
     Import { subtree: String, git_ref: String },
@@ -66,6 +67,7 @@ pub enum SubtreeOperation {
 }
 
 /// The type of the commit
+#[allow(missing_docs)]
 #[derive(Debug, Eq, PartialEq)]
 pub enum Type {
     Archive,
@@ -99,29 +101,40 @@ pub enum Type {
 /// ```
 #[derive(Debug, Eq, PartialEq)]
 pub enum Subject {
+    /// Conventaion Commit following the specification
+    #[allow(missing_docs)]
     ConventionalCommit {
         breaking_change: bool,
         category: Type,
         scope: Option<String>,
         description: String,
     },
+    /// Git fixup commit
     Fixup(String),
-    PullRequest {
-        id: String,
-        description: String,
-    },
+    /// A merged pull request
+    #[allow(missing_docs)]
+    PullRequest { id: String, description: String },
+    /// Commit releasing something
+    #[allow(missing_docs)]
     Release {
         version: String,
         scope: Option<String>,
         description: String,
     },
+    /// Something removed
     Remove(String),
+    /// Something renamed
     Rename(String),
+    /// Commit created by `git-revert`
     Revert(String),
+
+    /// A commit modifying a subtree tracked by`git-stree`.
+    #[allow(missing_docs)]
     SubtreeCommit {
         operation: SubtreeOperation,
         description: String,
     },
+    /// Just some commit
     Simple(String),
 }
 //
@@ -234,6 +247,7 @@ impl From<&str> for Subject {
 }
 
 impl Subject {
+    /// Return a unicode character representing the subject
     #[must_use]
     #[inline]
     pub const fn icon(&self) -> &str {
@@ -351,6 +365,7 @@ impl Subject {
         }
     }
 
+    /// Manipulated commit subject
     #[must_use]
     #[inline]
     pub fn description(&self) -> &str {
@@ -367,6 +382,7 @@ impl Subject {
         }
     }
 
+    /// Returns the scope defined by e.g. Conventional Commit
     #[must_use]
     #[inline]
     pub fn scope(&self) -> Option<String> {
