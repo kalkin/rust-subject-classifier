@@ -1,14 +1,14 @@
 [package]
-name = "subject-classifier"
-version = "0.2.0"
-authors = ["Bahtiar `kalkin-` Gadimov <bahtiar@gadimov.de>"]
-edition = "2021"
-license = "LGPL-3.0-or-later"
-description = "Library for classifying a commit by it's subject"
-repository = "https://github.com/kalkin/rust-subject-classifier"
-keywords = ["changelog"]
-categories = ["data-structures", "text-processing"]
+name = 'subject-classifier'
+authors = ['Bahtiar `kalkin-` Gadimov <bahtiar@gadimov.de>']
+categories = ['data-structures', 'text-processing']
+description = '''Library for classifying a commit by it's subject'''
+edition = '2021'
+keywords = ['changelog']
+license = 'LGPL-3.0-or-later'
+repository = 'https://github.com/kalkin/rust-subject-classifier'
+version = '0.2.0'
 
 [dependencies]
-lazy_static = "1.4"
-regex = "1"
+lazy_static = '1.4'
+regex = '1'
