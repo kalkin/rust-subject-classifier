@@ -50,6 +50,8 @@ lazy_static! {
     static ref PR_REGEX: Regex =
         Regex::new(r"^Merge (?:remote-tracking branch '.+/pr/(\d+)'|pull request #(\d+) from .+)$")
             .expect("Valid RegEx");
+    // https://github.com/apps/bors
+    static ref PR_REGEX_BORS: Regex = Regex::new(r"^Merge #(\d+)").expect("Valid RegEx");
     static ref PR_REGEX_BB: Regex =
         Regex::new(r"^Merge pull request #(\d+) in .+ from .+$").expect("Valid RegEx");
     static ref ADD_REGEX: Regex = Regex::new(r"(?i)^add:?\s*").expect("Valid RegEx");
@@ -205,10 +207,8 @@ impl From<&str> for Subject {
             Self::Rename(subject.to_owned())
         } else if subject.to_lowercase().starts_with("revert ") {
             Self::Revert(subject.to_owned())
-        } else if let Some(caps) = PR_REGEX_BB.captures(subject) {
+        } else if let Some(caps) = PR_REGEX_BORS.captures(subject) {
             let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_owned()
-            } else if let Some(n) = caps.get(2) {
                 n.as_str().to_owned()
             } else {
                 // If we are here then something went completly wrong.
