@@ -156,7 +156,8 @@ impl From<&str> for Subject {
                 scope: None,
                 description: subject.to_owned(),
             }
-        } else if let Some(caps) = PR_REGEX.captures(subject)
+        } else if let Some(caps) = PR_REGEX
+            .captures(subject)
             .or_else(|| PR_REGEX_BB.captures(subject))
         {
             let id = if let Some(n) = caps.get(1) {
