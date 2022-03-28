@@ -159,20 +159,9 @@ impl From<&str> for Subject {
         } else if let Some(caps) = PR_REGEX
             .captures(subject)
             .or_else(|| PR_REGEX_BB.captures(subject))
+            .or_else(|| PR_REGEX_BORS.captures(subject))
         {
-            let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_owned()
-            } else if let Some(n) = caps.get(2) {
-                n.as_str().to_owned()
-            } else {
-                // If we are here then something went completly wrong.
-                // to minimize the damage just return a `Subject::Simple`
-                return Self::Simple(subject.to_owned());
-            };
-            Self::PullRequest {
-                id,
-                description: subject.to_owned(),
-            }
+            Self::parse_pr(&caps, subject)
         } else if subject.starts_with("fixup!") {
             Self::Fixup(subject.to_owned())
         } else if let Some(caps) = UPDATE_REGEX.captures(subject) {
@@ -210,18 +199,6 @@ impl From<&str> for Subject {
             Self::Rename(subject.to_owned())
         } else if subject.to_lowercase().starts_with("revert ") {
             Self::Revert(subject.to_owned())
-        } else if let Some(caps) = PR_REGEX_BORS.captures(subject) {
-            let id = if let Some(n) = caps.get(1) {
-                n.as_str().to_owned()
-            } else {
-                // If we are here then something went completly wrong.
-                // to minimize the damage just return a `Subject::Simple`
-                return Self::Simple(subject.to_owned());
-            };
-            Self::PullRequest {
-                id,
-                description: subject.to_owned(),
-            }
         } else if ADD_REGEX.is_match(subject) {
             Self::ConventionalCommit {
                 breaking_change: false,
@@ -303,6 +280,23 @@ impl Subject {
             Subject::PullRequest { .. } => " ",
         }
     }
+
+    fn parse_pr(caps: &Captures<'_>, subject: &str) -> Self {
+        let id = if let Some(n) = caps.get(1) {
+            n.as_str().to_owned()
+        } else if let Some(n) = caps.get(2) {
+            n.as_str().to_owned()
+        } else {
+            // If we are here then something went completly wrong.
+            // to minimize the damage just return a `Subject::Simple`
+            return Self::Simple(subject.to_owned());
+        };
+        Self::PullRequest {
+            id,
+            description: subject.to_owned(),
+        }
+    }
+
     fn parse_conventional_commit(caps: &Captures<'_>) -> Self {
         let mut cat_text = caps[1].to_string();
         let mut scope_text = caps
