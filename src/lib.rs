@@ -344,7 +344,7 @@ impl Subject {
             "gi" | "issue" | "done" => Type::Issue,
             "improvement" => Type::Improvement,
             "perf" => Type::Perf,
-            "refactor" => Type::Refactor,
+            "internal" | "refactor" => Type::Refactor,
             "repo" => Type::Repo,
             "style" => Type::Style,
             "test" | "tests" => Type::Test,
@@ -535,6 +535,21 @@ mod tests {
                 breaking_change: false,
                 category: Type::Docs,
                 scope: Some("readme".to_string()),
+                description,
+            },
+        );
+    }
+
+    #[test]
+    fn refactor() {
+        let result = Subject::from("internal: Move mismatched arg count diagnostic to inference");
+        let description = String::from("Move mismatched arg count diagnostic to inference");
+        assert_eq!(
+            result,
+            Subject::ConventionalCommit {
+                breaking_change: false,
+                category: Type::Refactor,
+                scope: None,
                 description,
             },
         );
