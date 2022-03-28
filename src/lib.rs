@@ -204,7 +204,9 @@ impl From<&str> for Subject {
             }
         } else if subject.to_lowercase().starts_with("remove ") {
             Self::Remove(subject.to_owned())
-        } else if subject.to_lowercase().starts_with("rename ") {
+        } else if subject.to_lowercase().starts_with("rename ")
+            || subject.to_lowercase().starts_with("move ")
+        {
             Self::Rename(subject.to_owned())
         } else if subject.to_lowercase().starts_with("revert ") {
             Self::Revert(subject.to_owned())
