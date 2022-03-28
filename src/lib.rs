@@ -280,7 +280,7 @@ impl Subject {
                         Type::Issue => " ",
                         Type::Fix => "\u{f188} ",
                         Type::I18n => "\u{fac9}",
-                        Type::Other => "⁇ ",
+                        Type::Other => "  ",
                         Type::Perf => "\u{f9c4}",
                         Type::Refactor => "↺ ",
                         Type::Repo => " ",
