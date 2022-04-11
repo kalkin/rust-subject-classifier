@@ -146,13 +146,13 @@ impl From<&str> for Subject {
         #[allow(clippy::option_if_let_else)]
         if let Some(caps) = RELEASE_REGEX1.captures(subject) {
             Self::Release {
-                version: caps[2].to_string(),
-                scope: Some(caps[1].to_string()),
+                version: caps[2].to_owned(),
+                scope: Some(caps[1].to_owned()),
                 description: subject.to_owned(),
             }
         } else if let Some(caps) = RELEASE_REGEX2.captures(subject) {
             Self::Release {
-                version: caps[1].to_string(),
+                version: caps[1].to_owned(),
                 scope: None,
                 description: subject.to_owned(),
             }
@@ -166,8 +166,8 @@ impl From<&str> for Subject {
             Self::Fixup(subject.to_owned())
         } else if let Some(caps) = UPDATE_REGEX.captures(subject) {
             let operation = SubtreeOperation::Update {
-                subtree: caps[1].to_string(),
-                git_ref: caps[2].to_string(),
+                subtree: caps[1].to_owned(),
+                git_ref: caps[2].to_owned(),
             };
             Self::SubtreeCommit {
                 operation,
@@ -175,8 +175,8 @@ impl From<&str> for Subject {
             }
         } else if let Some(caps) = IMPORT_REGEX.captures(subject) {
             let operation = SubtreeOperation::Import {
-                subtree: caps[1].to_string(),
-                git_ref: caps[2].to_string(),
+                subtree: caps[1].to_owned(),
+                git_ref: caps[2].to_owned(),
             };
             Self::SubtreeCommit {
                 operation,
@@ -184,8 +184,8 @@ impl From<&str> for Subject {
             }
         } else if let Some(caps) = SPLIT_REGEX.captures(subject) {
             let operation = SubtreeOperation::Split {
-                subtree: caps[1].to_string(),
-                git_ref: caps[2].to_string(),
+                subtree: caps[1].to_owned(),
+                git_ref: caps[2].to_owned(),
             };
             Self::SubtreeCommit {
                 operation,
@@ -298,11 +298,11 @@ impl Subject {
     }
 
     fn parse_conventional_commit(caps: &Captures<'_>) -> Self {
-        let mut cat_text = caps[1].to_string();
+        let mut cat_text = caps[1].to_owned();
         let mut scope_text = caps
             .get(2)
-            .map_or_else(|| "".to_owned(), |_| caps[2].to_string());
-        let mut rest_text = caps[3].to_string();
+            .map_or_else(|| "".to_owned(), |_| caps[2].to_owned());
+        let mut rest_text = caps[3].to_owned();
         let breaking_change = cat_text.ends_with('!')
             || scope_text.ends_with('!')
             || cat_text.to_lowercase().as_str() == "breaking change";
@@ -314,7 +314,7 @@ impl Subject {
         }
 
         if scope_text.len() >= 3 {
-            scope_text = scope_text[1..scope_text.len() - 1].to_string();
+            scope_text = scope_text[1..scope_text.len() - 1].to_owned();
         }
 
         let scope = if scope_text.is_empty() {
@@ -348,7 +348,7 @@ impl Subject {
         };
 
         if category == Type::Other {
-            rest_text = caps[0].to_string();
+            rest_text = caps[0].to_owned();
         }
         if breaking_change {
             let mut tmp = "! ".to_owned();
@@ -427,7 +427,7 @@ mod tests {
             Subject::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Build,
-                scope: Some("repo".to_string()),
+                scope: Some("repo".to_owned()),
                 description,
             },
         );
@@ -436,7 +436,7 @@ mod tests {
     #[test]
     fn change() {
         let result = Subject::from("change!: Replace strncpy with memcpy");
-        let description = "! Replace strncpy with memcpy".to_string();
+        let description = "! Replace strncpy with memcpy".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -448,7 +448,7 @@ mod tests {
         );
         assert_eq!(result.icon(), "⚠ ");
         let result = Subject::from("change: Replace strncpy with memcpy");
-        let description = "Replace strncpy with memcpy".to_string();
+        let description = "Replace strncpy with memcpy".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -462,7 +462,7 @@ mod tests {
         assert_ne!(result.icon(), "⚠ ");
 
         let result = Subject::from("CHANGE Replace strncpy with memcpy");
-        let description = "Replace strncpy with memcpy".to_string();
+        let description = "Replace strncpy with memcpy".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -479,7 +479,7 @@ mod tests {
     #[test]
     fn breaking_change() {
         let result = Subject::from("breaking change: Commits are now namedtupples");
-        let description = "! Commits are now namedtupples".to_string();
+        let description = "! Commits are now namedtupples".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -496,13 +496,13 @@ mod tests {
     #[test]
     fn ci() {
         let result = Subject::from("ci(srht): Fedora Rawhide run dist-rpm && qubes-builder");
-        let description = "Fedora Rawhide run dist-rpm && qubes-builder".to_string();
+        let description = "Fedora Rawhide run dist-rpm && qubes-builder".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Ci,
-                scope: Some("srht".to_string()),
+                scope: Some("srht".to_owned()),
                 description,
             },
         );
@@ -510,7 +510,7 @@ mod tests {
     #[test]
     fn deps() {
         let result = Subject::from("deps: Use thick Xlib bindings");
-        let description = "Use thick Xlib bindings".to_string();
+        let description = "Use thick Xlib bindings".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -524,13 +524,13 @@ mod tests {
     #[test]
     fn docs() {
         let result = Subject::from("docs(readme): add xcb-util-xrm to dependencies' list");
-        let description = "add xcb-util-xrm to dependencies' list".to_string();
+        let description = "add xcb-util-xrm to dependencies' list".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
                 breaking_change: false,
                 category: Type::Docs,
-                scope: Some("readme".to_string()),
+                scope: Some("readme".to_owned()),
                 description,
             },
         );
@@ -554,13 +554,13 @@ mod tests {
     #[test]
     fn scope_breaking_change() {
         let result = Subject::from("fix(search)!: This breaks the api");
-        let description = "! This breaks the api".to_string();
+        let description = "! This breaks the api".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
                 breaking_change: true,
                 category: Type::Fix,
-                scope: Some("search".to_string()),
+                scope: Some("search".to_owned()),
                 description,
             },
         );
@@ -575,10 +575,10 @@ mod tests {
             result,
             Subject::SubtreeCommit {
                 operation: SubtreeOperation::Update {
-                    subtree: "qubes-builder".to_string(),
-                    git_ref: "5e5301b8eac".to_string()
+                    subtree: "qubes-builder".to_owned(),
+                    git_ref: "5e5301b8eac".to_owned()
                 },
-                description: text.to_string()
+                description: text.to_owned()
             }
         );
     }
@@ -591,10 +591,10 @@ mod tests {
             result,
             Subject::SubtreeCommit {
                 operation: SubtreeOperation::Split {
-                    subtree: "rust".to_string(),
-                    git_ref: "baa77665cab9b8b25c7887e021280d8b55e2c9cb".to_string()
+                    subtree: "rust".to_owned(),
+                    git_ref: "baa77665cab9b8b25c7887e021280d8b55e2c9cb".to_owned()
                 },
-                description: text.to_string()
+                description: text.to_owned()
             }
         );
     }
@@ -607,10 +607,10 @@ mod tests {
             result,
             Subject::SubtreeCommit {
                 operation: SubtreeOperation::Import {
-                    subtree: "php/composer-monorepo-plugin".to_string(),
-                    git_ref: "master".to_string()
+                    subtree: "php/composer-monorepo-plugin".to_owned(),
+                    git_ref: "master".to_owned()
                 },
-                description: text.to_string()
+                description: text.to_owned()
             }
         );
     }
@@ -622,9 +622,9 @@ mod tests {
         assert_eq!(
             result,
             Subject::Release {
-                version: "2.11.0".to_string(),
-                scope: Some("foo".to_string()),
-                description: text.to_string()
+                version: "2.11.0".to_owned(),
+                scope: Some("foo".to_owned()),
+                description: text.to_owned()
             }
         );
     }
@@ -636,9 +636,9 @@ mod tests {
         assert_eq!(
             result,
             Subject::Release {
-                version: "2.11.0".to_string(),
+                version: "2.11.0".to_owned(),
                 scope: None,
-                description: text.to_string()
+                description: text.to_owned()
             }
         );
 
@@ -647,9 +647,9 @@ mod tests {
         assert_eq!(
             result,
             Subject::Release {
-                version: "2.11.0".to_string(),
+                version: "2.11.0".to_owned(),
                 scope: None,
-                description: text.to_string()
+                description: text.to_owned()
             }
         );
     }
@@ -658,14 +658,14 @@ mod tests {
     fn revert() {
         let text = "Revert two commits breaking watching hotplug-status xenstore node";
         let result = Subject::from(text);
-        assert_eq!(result, Subject::Revert(text.to_string()));
+        assert_eq!(result, Subject::Revert(text.to_owned()));
     }
 
     #[test]
     fn rename() {
         let text = "Rename ForkPointCalculation::Needed → InProgress";
         let result = Subject::from(text);
-        assert_eq!(result, Subject::Rename(text.to_string()));
+        assert_eq!(result, Subject::Rename(text.to_owned()));
     }
 
     #[test]
@@ -675,8 +675,8 @@ mod tests {
         assert_eq!(
             result,
             Subject::PullRequest {
-                id: "126".to_string(),
-                description: text.to_string()
+                id: "126".to_owned(),
+                description: text.to_owned()
             }
         );
     }
@@ -688,8 +688,8 @@ mod tests {
         assert_eq!(
             result,
             Subject::PullRequest {
-                id: "7771".to_string(),
-                description: text.to_string()
+                id: "7771".to_owned(),
+                description: text.to_owned()
             }
         );
     }
@@ -698,7 +698,7 @@ mod tests {
     fn security() {
         let text = "security: Fix CSV-FOO-1234";
         let result = Subject::from(text);
-        let description = "Fix CSV-FOO-1234".to_string();
+        let description = "Fix CSV-FOO-1234".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -711,7 +711,7 @@ mod tests {
 
         let text = "security fix: Fix CSV-FOO-1234";
         let result = Subject::from(text);
-        let description = "Fix CSV-FOO-1234".to_string();
+        let description = "Fix CSV-FOO-1234".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -733,7 +733,7 @@ mod tests {
                 breaking_change: false,
                 category: Type::Other,
                 scope: None,
-                description: "Makefile: replace '-' in plugins_var".to_string()
+                description: "Makefile: replace '-' in plugins_var".to_owned()
             }
         );
     }
@@ -742,7 +742,7 @@ mod tests {
     fn deprecate() {
         let text = "deprecate: Mark Foo() as deprecated";
         let result = Subject::from(text);
-        let description = "Mark Foo() as deprecated".to_string();
+        let description = "Mark Foo() as deprecated".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
@@ -755,7 +755,7 @@ mod tests {
 
         let text = "Deprecate Foo() use Bar() instead";
         let result = Subject::from(text);
-        let description = "Deprecate Foo() use Bar() instead".to_string();
+        let description = "Deprecate Foo() use Bar() instead".to_owned();
         assert_eq!(
             result,
             Subject::ConventionalCommit {
