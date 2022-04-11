@@ -392,7 +392,7 @@ impl Subject {
             Subject::SubtreeCommit { operation, .. } => match operation {
                 SubtreeOperation::Import { subtree, .. }
                 | SubtreeOperation::Split { subtree, .. }
-                | SubtreeOperation::Update { subtree, .. } => Some(subtree.to_string()),
+                | SubtreeOperation::Update { subtree, .. } => Some(subtree.clone()),
             },
             _ => None,
         }
