@@ -435,45 +435,51 @@ mod tests {
 
     #[test]
     fn change() {
-        let result = Subject::from("change!: Replace strncpy with memcpy");
-        let description = "! Replace strncpy with memcpy".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: true,
-                category: Type::Change,
-                scope: None,
-                description,
-            },
-        );
-        assert_eq!(result.icon(), "⚠ ");
-        let result = Subject::from("change: Replace strncpy with memcpy");
-        let description = "Replace strncpy with memcpy".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Change,
-                scope: None,
-                description: description.clone(),
-            },
-        );
-        assert_eq!(result.description(), description);
-        assert_ne!(result.icon(), "⚠ ");
+        {
+            let result = Subject::from("change!: Replace strncpy with memcpy");
+            let description = "! Replace strncpy with memcpy".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: true,
+                    category: Type::Change,
+                    scope: None,
+                    description,
+                },
+            );
+            assert_eq!(result.icon(), "⚠ ");
+        }
+        {
+            let result = Subject::from("change: Replace strncpy with memcpy");
+            let description = "Replace strncpy with memcpy".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Change,
+                    scope: None,
+                    description: description.clone(),
+                },
+            );
+            assert_eq!(result.description(), description);
+            assert_ne!(result.icon(), "⚠ ");
+        }
 
-        let result = Subject::from("CHANGE Replace strncpy with memcpy");
-        let description = "Replace strncpy with memcpy".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Change,
-                scope: None,
-                description: description.clone(),
-            },
-        );
-        assert_eq!(result.description(), description);
-        assert_ne!(result.icon(), "⚠ ");
+        {
+            let result = Subject::from("CHANGE Replace strncpy with memcpy");
+            let description = "Replace strncpy with memcpy".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Change,
+                    scope: None,
+                    description: description.clone(),
+                },
+            );
+            assert_eq!(result.description(), description);
+            assert_ne!(result.icon(), "⚠ ");
+        }
     }
 
     #[test]
@@ -631,27 +637,31 @@ mod tests {
 
     #[test]
     fn release2() {
-        let text = "Release v2.11.0";
-        let result = Subject::from(text);
-        assert_eq!(
-            result,
-            Subject::Release {
-                version: "2.11.0".to_owned(),
-                scope: None,
-                description: text.to_owned()
-            }
-        );
+        {
+            let text = "Release v2.11.0";
+            let result = Subject::from(text);
+            assert_eq!(
+                result,
+                Subject::Release {
+                    version: "2.11.0".to_owned(),
+                    scope: None,
+                    description: text.to_owned()
+                }
+            );
+        }
 
-        let text = "Release 2.11.0";
-        let result = Subject::from(text);
-        assert_eq!(
-            result,
-            Subject::Release {
-                version: "2.11.0".to_owned(),
-                scope: None,
-                description: text.to_owned()
-            }
-        );
+        {
+            let text = "Release 2.11.0";
+            let result = Subject::from(text);
+            assert_eq!(
+                result,
+                Subject::Release {
+                    version: "2.11.0".to_owned(),
+                    scope: None,
+                    description: text.to_owned()
+                }
+            );
+        }
     }
 
     #[test]
@@ -696,31 +706,35 @@ mod tests {
 
     #[test]
     fn security() {
-        let text = "security: Fix CSV-FOO-1234";
-        let result = Subject::from(text);
-        let description = "Fix CSV-FOO-1234".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Security,
-                scope: None,
-                description
-            }
-        );
+        {
+            let text = "security: Fix CSV-FOO-1234";
+            let result = Subject::from(text);
+            let description = "Fix CSV-FOO-1234".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Security,
+                    scope: None,
+                    description
+                }
+            );
+        }
 
-        let text = "security fix: Fix CSV-FOO-1234";
-        let result = Subject::from(text);
-        let description = "Fix CSV-FOO-1234".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Security,
-                scope: None,
-                description
-            }
-        );
+        {
+            let text = "security fix: Fix CSV-FOO-1234";
+            let result = Subject::from(text);
+            let description = "Fix CSV-FOO-1234".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Security,
+                    scope: None,
+                    description
+                }
+            );
+        }
     }
 
     #[test]
@@ -740,30 +754,33 @@ mod tests {
 
     #[test]
     fn deprecate() {
-        let text = "deprecate: Mark Foo() as deprecated";
-        let result = Subject::from(text);
-        let description = "Mark Foo() as deprecated".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Deprecate,
-                scope: None,
-                description
-            }
-        );
-
-        let text = "Deprecate Foo() use Bar() instead";
-        let result = Subject::from(text);
-        let description = "Deprecate Foo() use Bar() instead".to_owned();
-        assert_eq!(
-            result,
-            Subject::ConventionalCommit {
-                breaking_change: false,
-                category: Type::Deprecate,
-                scope: None,
-                description
-            }
-        );
+        {
+            let text = "deprecate: Mark Foo() as deprecated";
+            let result = Subject::from(text);
+            let description = "Mark Foo() as deprecated".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Deprecate,
+                    scope: None,
+                    description
+                }
+            );
+        }
+        {
+            let text = "Deprecate Foo() use Bar() instead";
+            let result = Subject::from(text);
+            let description = "Deprecate Foo() use Bar() instead".to_owned();
+            assert_eq!(
+                result,
+                Subject::ConventionalCommit {
+                    breaking_change: false,
+                    category: Type::Deprecate,
+                    scope: None,
+                    description
+                }
+            );
+        }
     }
 }
