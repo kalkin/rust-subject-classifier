@@ -259,7 +259,7 @@ impl Subject {
                         Type::I18n => "\u{fac9}",
                         Type::Other => "  ",
                         Type::Perf => "\u{f9c4}",
-                        Type::Refactor => "\u{f94b}",
+                        Type::Refactor => "\u{f94b} ",
                         Type::Repo => " ",
                         Type::Security => " ",
                         Type::Style => "♥ ",
