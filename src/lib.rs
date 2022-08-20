@@ -253,7 +253,7 @@ impl Subject {
                         Type::Archive => "\u{f53b} ",
                         Type::Build => "🔨",
                         Type::Change | Type::Improvement => "\u{e370} ",
-                        Type::Chore => "\u{1F6A7} ", // unicode construction sign
+                        Type::Chore => "\u{1F6A7}", // unicode construction sign
                         Type::Ci => "\u{f085} ",
                         Type::Deprecate => "\u{f48e} ",
                         Type::Dev => "\u{1f6a9}",
