@@ -54,6 +54,7 @@ lazy_static! {
     static ref PR_REGEX_BORS: Regex = Regex::new(r"^Merge #(\d+)").expect("Valid RegEx");
     static ref PR_REGEX_BB: Regex =
         Regex::new(r"^Merge pull request #(\d+) in .+ from .+$").expect("Valid RegEx");
+    static ref PR_REGEX_AZURE: Regex = Regex::new(r"^Merged PR (\d+): (.*)$").expect("Valid RegEx");
     static ref ADD_REGEX: Regex = Regex::new(r"(?i)^add:?\s*").expect("Valid RegEx");
     static ref FIX_REGEX: Regex =
         Regex::new(r"(?i)^(bug)?fix(ing|ed)?(\(.+\))?[/:\s]+").expect("Valid Regex");
@@ -156,8 +157,13 @@ impl From<&str> for Subject {
                 scope: None,
                 description: subject.to_owned(),
             }
+        } else if let Some(caps) = PR_REGEX_AZURE.captures(subject) {
+            let id = caps[1].to_owned();
+            let description = format!("{} (#{})", &caps[2], id);
+            Self::PullRequest { id, description }
         } else if let Some(caps) = PR_REGEX
             .captures(subject)
+            .or_else(|| PR_REGEX_AZURE.captures(subject))
             .or_else(|| PR_REGEX_BB.captures(subject))
             .or_else(|| PR_REGEX_BORS.captures(subject))
         {
@@ -700,6 +706,19 @@ mod tests {
             Subject::PullRequest {
                 id: "7771".to_owned(),
                 description: text.to_owned()
+            }
+        );
+    }
+
+    #[test]
+    fn pr_azure() {
+        let text = "Merged PR 36587: Add Foo calibration to item type";
+        let result = Subject::from(text);
+        assert_eq!(
+            result,
+            Subject::PullRequest {
+                id: "36587".to_owned(),
+                description: "Add Foo calibration to item type (#36587)".to_owned()
             }
         );
     }
