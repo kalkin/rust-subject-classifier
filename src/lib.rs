@@ -240,8 +240,8 @@ impl Subject {
     #[inline]
     pub const fn icon(&self) -> &str {
         match self {
-            Subject::Fixup(_) => "\u{f0e3} ",
-            Subject::ConventionalCommit {
+            Self::Fixup(_) => "\u{f0e3} ",
+            Self::ConventionalCommit {
                 breaking_change,
                 category,
                 ..
@@ -273,17 +273,17 @@ impl Subject {
                     }
                 }
             }
-            Subject::SubtreeCommit { operation, .. } => match operation {
+            Self::SubtreeCommit { operation, .. } => match operation {
                 SubtreeOperation::Import { .. } => "⮈ ",
                 SubtreeOperation::Split { .. } => "\u{f403} ",
                 SubtreeOperation::Update { .. } => "\u{f419} ",
             },
-            Subject::Simple(_) => "  ",
-            Subject::Release { .. } => "\u{f412} ",
-            Subject::Remove(_) => "\u{f48e} ",
-            Subject::Rename(_) => "\u{f044} ",
-            Subject::Revert(_) => " ",
-            Subject::PullRequest { .. } => " ",
+            Self::Simple(_) => "  ",
+            Self::Release { .. } => "\u{f412} ",
+            Self::Remove(_) => "\u{f48e} ",
+            Self::Rename(_) => "\u{f044} ",
+            Self::Revert(_) => " ",
+            Self::PullRequest { .. } => " ",
         }
     }
 
@@ -375,15 +375,15 @@ impl Subject {
     #[inline]
     pub fn description(&self) -> &str {
         match self {
-            Subject::ConventionalCommit { description, .. }
-            | Subject::Fixup(description)
-            | Subject::PullRequest { description, .. }
-            | Subject::Release { description, .. }
-            | Subject::SubtreeCommit { description, .. }
-            | Subject::Remove(description)
-            | Subject::Rename(description)
-            | Subject::Revert(description)
-            | Subject::Simple(description) => description,
+            Self::ConventionalCommit { description, .. }
+            | Self::Fixup(description)
+            | Self::PullRequest { description, .. }
+            | Self::Release { description, .. }
+            | Self::SubtreeCommit { description, .. }
+            | Self::Remove(description)
+            | Self::Rename(description)
+            | Self::Revert(description)
+            | Self::Simple(description) => description,
         }
     }
 
@@ -392,10 +392,8 @@ impl Subject {
     #[inline]
     pub fn scope(&self) -> Option<String> {
         match self {
-            Subject::ConventionalCommit { scope, .. } | Subject::Release { scope, .. } => {
-                scope.clone()
-            }
-            Subject::SubtreeCommit { operation, .. } => match operation {
+            Self::ConventionalCommit { scope, .. } | Self::Release { scope, .. } => scope.clone(),
+            Self::SubtreeCommit { operation, .. } => match operation {
                 SubtreeOperation::Import { subtree, .. }
                 | SubtreeOperation::Split { subtree, .. }
                 | SubtreeOperation::Update { subtree, .. } => Some(subtree.clone()),
