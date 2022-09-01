@@ -390,13 +390,13 @@ impl Subject {
     /// Returns the scope defined by e.g. Conventional Commit
     #[must_use]
     #[inline]
-    pub fn scope(&self) -> Option<String> {
+    pub const fn scope(&self) -> Option<&String> {
         match self {
-            Self::ConventionalCommit { scope, .. } | Self::Release { scope, .. } => scope.clone(),
+            Self::ConventionalCommit { scope, .. } | Self::Release { scope, .. } => scope.as_ref(),
             Self::SubtreeCommit { operation, .. } => match operation {
                 SubtreeOperation::Import { subtree, .. }
                 | SubtreeOperation::Split { subtree, .. }
-                | SubtreeOperation::Update { subtree, .. } => Some(subtree.clone()),
+                | SubtreeOperation::Update { subtree, .. } => Some(subtree),
             },
             _ => None,
         }
