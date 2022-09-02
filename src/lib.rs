@@ -62,7 +62,7 @@ lazy_static! {
 
 /// Represents different subtree operations encoded in the commit message.
 #[allow(missing_docs)]
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum SubtreeOperation {
     Import { subtree: String, git_ref: String },
     Split { subtree: String, git_ref: String },
@@ -71,7 +71,7 @@ pub enum SubtreeOperation {
 
 /// The type of the commit
 #[allow(missing_docs)]
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Type {
     Archive,
     Build,
@@ -102,7 +102,7 @@ pub enum Type {
 ///
 /// let subject = Subject::from("feat: Some new feature");
 /// ```
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub enum Subject {
     /// Conventaion Commit following the specification
     #[allow(missing_docs)]
