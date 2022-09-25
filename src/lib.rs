@@ -264,7 +264,7 @@ impl Subject {
                         Type::Fix => "\u{f188} ",
                         Type::I18n => "\u{fac9}",
                         Type::Other => "  ",
-                        Type::Perf => "\u{f9c4}",
+                        Type::Perf => "\u{f9c4} ",
                         Type::Refactor => "\u{f021} ",
                         Type::Repo => " ",
                         Type::Security => " ",
