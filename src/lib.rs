@@ -312,15 +312,20 @@ impl Subject {
         let breaking_change = cat_text.ends_with('!')
             || scope_text.ends_with('!')
             || cat_text.to_lowercase().as_str() == "breaking change";
-        if cat_text.ends_with('!') {
-            cat_text.truncate(cat_text.len() - 1);
-        }
-        if scope_text.ends_with('!') {
-            scope_text.truncate(scope_text.len() - 1);
-        }
 
-        if scope_text.len() >= 3 {
-            scope_text = scope_text[1..scope_text.len() - 1].to_owned();
+        #[allow(clippy::arithmetic)]
+        {
+            // arithmetic: if conditions guard the arithmetic
+            if cat_text.ends_with('!') {
+                cat_text.truncate(cat_text.len() - 1);
+            }
+            if scope_text.ends_with('!') {
+                scope_text.truncate(scope_text.len() - 1);
+            }
+
+            if scope_text.len() >= 3 {
+                scope_text = scope_text[1..scope_text.len() - 1].to_owned();
+            }
         }
 
         let scope = if scope_text.is_empty() {
