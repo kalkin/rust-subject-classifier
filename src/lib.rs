@@ -27,38 +27,49 @@
 //!         subject.scope(),
 //!         subject.description());
 //! ```
-use lazy_static::lazy_static;
 use regex::{Captures, Regex, RegexBuilder};
 
-lazy_static! {
-    static ref CONVENTIONAL_COMMIT_REGEX: Regex =
-        Regex::new(r"(?i)^(SECURITY FIX!?|BREAKING CHANGE!?|\w+!?)(\(.+\)!?)?[/:\s]*(.+)")
-            .expect("Valid RegEx");
-    static ref UPDATE_REGEX: Regex = Regex::new(r#"^Update :?(.+) to (.+)"#).expect("Valid RegEx");
-    static ref SPLIT_REGEX: Regex =
-        Regex::new(r#"^Split '(.+)/' into commit '(.+)'"#).expect("Valid RegEx");
-    static ref IMPORT_REGEX: Regex = Regex::new(r#"^:?(.+) Import .+⸪(.+)"#).expect("Valid RegEx");
-    static ref RELEASE_REGEX1: Regex =
-        RegexBuilder::new(r#"^(?:Release|Bump) :?(.+)@v?([0-9.]+)\b.*"#)
-            .case_insensitive(true)
-            .build()
-            .expect("Valid Regex");
-    static ref RELEASE_REGEX2: Regex = RegexBuilder::new(r#"^(?:Release|Bump)\s.*?v?([0-9.]+).*"#)
+use once_cell::sync::Lazy;
+macro_rules! regex {
+    ($name:ident, $re:expr $(,)?) => {
+        static $name: Lazy<Regex> = Lazy::new(|| Regex::new($re).expect("Valid Regex"));
+    };
+}
+
+regex!(
+    CONVENTIONAL_COMMIT_REGEX,
+    r"(?i)^(SECURITY FIX!?|BREAKING CHANGE!?|\w+!?)(\(.+\)!?)?[/:\s]*(.+)"
+);
+
+regex!(ADD_REGEX, r"(?i)^add:?\s*");
+regex!(FIX_REGEX, r"(?i)^(bug)?fix(ing|ed)?(\(.+\))?[/:\s]+");
+
+regex!(UPDATE_REGEX, r#"^Update :?(.+) to (.+)"#);
+regex!(SPLIT_REGEX, r#"^Split '(.+)/' into commit '(.+)'"#);
+regex!(IMPORT_REGEX, r#"^:?(.+) Import .+⸪(.+)"#);
+
+regex!(
+    PR_REGEX,
+    r"^Merge (?:remote-tracking branch '.+/pr/(\d+)'|pull request #(\d+) from .+)$"
+);
+// https://github.com/apps/bors
+regex!(PR_REGEX_BORS, r"^Merge #(\d+)");
+regex!(PR_REGEX_BB, r"^Merge pull request #(\d+) in .+ from .+$");
+regex!(PR_REGEX_AZURE, r"^Merged PR (\d+): (.*)$");
+
+static RELEASE_REGEX1: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new(r#"^(?:Release|Bump) :?(.+)@v?([0-9.]+)\b.*"#)
         .case_insensitive(true)
         .build()
-        .expect("Valid Regex");
-    static ref PR_REGEX: Regex =
-        Regex::new(r"^Merge (?:remote-tracking branch '.+/pr/(\d+)'|pull request #(\d+) from .+)$")
-            .expect("Valid RegEx");
-    // https://github.com/apps/bors
-    static ref PR_REGEX_BORS: Regex = Regex::new(r"^Merge #(\d+)").expect("Valid RegEx");
-    static ref PR_REGEX_BB: Regex =
-        Regex::new(r"^Merge pull request #(\d+) in .+ from .+$").expect("Valid RegEx");
-    static ref PR_REGEX_AZURE: Regex = Regex::new(r"^Merged PR (\d+): (.*)$").expect("Valid RegEx");
-    static ref ADD_REGEX: Regex = Regex::new(r"(?i)^add:?\s*").expect("Valid RegEx");
-    static ref FIX_REGEX: Regex =
-        Regex::new(r"(?i)^(bug)?fix(ing|ed)?(\(.+\))?[/:\s]+").expect("Valid Regex");
-}
+        .expect("Valid Regex")
+});
+
+static RELEASE_REGEX2: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new(r#"^(?:Release|Bump)\s.*?v?([0-9.]+).*"#)
+        .case_insensitive(true)
+        .build()
+        .expect("Valid Regex")
+});
 
 /// Represents different subtree operations encoded in the commit message.
 #[allow(missing_docs)]
